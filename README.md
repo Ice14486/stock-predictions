@@ -41,13 +41,15 @@ The AAPL view uses the local cached CSV when available. Other tickers are downlo
 - **Diagnostics:** Statsmodels ADF and Ljung–Box; PyOD ECOD anomaly detection fit on training features.
 - **Backtest:** signal after close, enter next open, exit next close, and charge 5 bps per side. Close-to-close buy-and-hold is shown separately because it includes overnight exposure.
 
-## Results status
+## AAPL results after the split-boundary fix
 
-The AAPL metrics previously shown here were produced before purging the train/validation boundary rows. They are not valid results for the corrected split. Run the notebook from top to bottom to regenerate the validation, final test, and backtest results; this README does not claim post-fix metrics yet.
+The walk-forward procedure selected Statsmodels Logit (mean fold balanced accuracy 0.509, versus 0.500 for the majority baseline). Its threshold, 0.585, was selected on 2023–2024 validation data, where balanced accuracy was 0.507. On the 2025 test period, that selected model scored 0.483 balanced accuracy and 0.432 ROC-AUC. The GridSearchCV Random Forest challenger selected `max_depth=6` and `min_samples_leaf=10` (mean training-fold balanced accuracy 0.519); with its validation-selected threshold, it scored 0.489 balanced accuracy and 0.505 ROC-AUC on 2025.
+
+The cost-aware backtest for the walk-forward-selected Statsmodels Logit strategy returned +4.0%, compared with -0.7% for always-long open-to-close and +11.9% for close-to-close buy-and-hold. The strategy did not beat buy-and-hold, and the classifier metrics do not show a reliable predictive edge. The 2025 period was reported in earlier project versions before the boundary fix, so these corrected scores are a retrospective evaluation, not a pristine unseen test. Reserve a later period for a genuinely independent check.
 
 ## Limitations
 
 - Trading costs are fixed at 5 bps per side; actual slippage, taxes, market impact, and financing can be higher.
 - PyOD flagged only a handful of test days, too few to support conclusions about anomaly outcomes.
 - Features use historical AAPL OHLCV only; there are no fundamentals, news, or macroeconomic variables.
-- Model and threshold selection can overfit the folds and validation period. Reserve future data for another independent check.
+- Model and threshold selection can overfit the folds and validation period. The 2025 test period was inspected in an earlier project version, so use later data for an independent check.
