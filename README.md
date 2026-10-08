@@ -32,7 +32,7 @@ The AAPL view uses the local cached CSV when available. Other tickers are downlo
 
 - **Target:** 1 when the next trading session closes above its open; otherwise 0. This matches the strategy’s open-to-close return window.
 - **Features:** 11 AAPL price, volume, momentum, and volatility features use information through the prediction date’s close.
-- **Split:** train through 2022, validation in 2023–2024, final test in 2025.
+- **Split:** train through 2022, validation in 2023–2024, final test in 2025. The final train and validation signal rows are purged because their next-session labels would cross into the following period.
 - **Walk-forward validation:** four expanding-window folds, each about one year, with a one-session gap. The notebook shows both fold-level and mean metrics.
 - **Hyperparameter tuning:** a bounded Scikit-learn `GridSearchCV` compares Random Forest `max_depth` values of 4, 6, and 8 with `min_samples_leaf` values of 10 and 15. It uses the same chronological, training-only folds and balanced accuracy scoring; the 2025 test period is excluded from tuning.
 - **Tuned model check:** the best training-fold Random Forest is refit on all training data, its probability threshold is selected on 2023–2024 validation, and it is reported as a separate challenger on the final test set. The existing walk-forward-selected model remains the one used in the backtest.
@@ -41,9 +41,9 @@ The AAPL view uses the local cached CSV when available. Other tickers are downlo
 - **Diagnostics:** Statsmodels ADF and Ljung–Box; PyOD ECOD anomaly detection fit on training features.
 - **Backtest:** signal after close, enter next open, exit next close, and charge 5 bps per side. Close-to-close buy-and-hold is shown separately because it includes overnight exposure.
 
-## Current AAPL-only results
+## Results status
 
-In the previously recorded AAPL run, Random Forest was selected in walk-forward validation (mean fold balanced accuracy 0.516 versus 0.500 for the majority baseline). At the threshold selected on 2023–2024 validation, it scored 0.505 balanced accuracy and 0.512 ROC-AUC on the 2025 test set. The costed long/cash open-to-close strategy returned +5.9%, versus -0.7% for always-long open-to-close and +11.9% for close-to-close buy-and-hold. These results were recorded before adding the GridSearchCV challenger; rerun the notebook to produce its metrics. The original classifier was only slightly above chance and its strategy did not outperform buy-and-hold, so those results do not establish a reliable predictive or trading edge.
+The AAPL metrics previously shown here were produced before purging the train/validation boundary rows. They are not valid results for the corrected split. Run the notebook from top to bottom to regenerate the validation, final test, and backtest results; this README does not claim post-fix metrics yet.
 
 ## Limitations
 
